@@ -1,0 +1,21 @@
+{
+  "name": "webhook",
+  "version": "1.0.0",
+  "description": "Example of webhook that catch POST request.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "webhook",
+    "expressjs"
+  ],
+  "author": "Yannick Roffin",
+  "license": "MIT",
+  "dependencies": {
+    "mqtt": "~2.18.0",
+    "args": "~4.0.0",
+    "body-parser": "~1.18.3",
+    "express": "~4.16.3"
+  }
+}
