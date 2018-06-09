@@ -46,7 +46,7 @@ app.post('/*', function (req, res) {
     var body = req.body;
 
     // Publish
-    remote.publish(req.params[0], JSON.stringify(req.body, "", "\t"))
+    remote.publish('/'+req.params[0], JSON.stringify(req.body, "", "\t"))
 
     // Return result
     res.json(req.body);
