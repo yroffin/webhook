@@ -1,3 +1,5 @@
+'use strict';
+
 var args = require('args')
 
 args
