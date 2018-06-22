@@ -42,14 +42,14 @@ var express = require('express'),
 
 app.use(bodyParser.json());
 
-app.post('/*', function (req, res) {
-    var body = req.body;
-
+app.post('/default/*', function (req, res) {
     // Publish
-    remote.publish('/'+req.params[0], JSON.stringify(req.body, "", "\t"))
+    hook(req, res);
+});
 
-    // Return result
-    res.json(req.body);
+app.post('/travis', function (req, res) {
+    // Publish
+    travis(req, res);
 });
 
 var server = app.listen(port, function () {
@@ -57,11 +57,46 @@ var server = app.listen(port, function () {
     var host = server.address().address
     var port = server.address().port
 
-    console.log('Example app listening at http://%s:%s', host, port)
-
+    console.log('Webhook listening at http://%s:%s', host, port)
 });
 
 process.on('uncaughtException', function (message) {
     console.log(message);
-    if(!remote.connected) remote.reconnect()
+    if (!remote.connected) remote.reconnect()
 });
+
+function hook(req) {
+    var body = req.body;
+    remote.publish('/' + req.params[0], JSON.stringify(req.body, "", "\t"))
+
+    // Return result
+    res.json(req.body);
+}
+
+function travis(req, res) {
+    var body = req.body;
+    let travisSignature = Buffer.from(req.headers.signature, 'base64');
+    let payload = req.body.payload;
+    let status = false;
+
+    got('https://api.travis-ci.org/config', {
+        timeout: 10000
+    })
+        .then(response => {
+            let travisPublicKey =
+                JSON.parse(response.body).config.notifications.webhook.public_key;
+            let verifier = crypto.createVerify('sha1');
+            verifier.update(payload);
+            status = verifier.verify(travisPublicKey, travisSignature);
+        })
+        .catch(error => {
+            remote.publish('/' + req.params[0], JSON.stringify(req.body, "", "\t"))
+        })
+        .then(() => {
+            if (status) {
+                remote.publish('/' + req.params[0], JSON.stringify(req.body, "", "\t"))
+            }
+            // Return result
+            res.json(req.body);
+        });
+}
