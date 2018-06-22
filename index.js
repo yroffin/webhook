@@ -69,7 +69,7 @@ process.on('uncaughtException', function (message) {
     if (!remote.connected) remote.reconnect()
 });
 
-function hook(req) {
+function hook(req, res) {
     var body = req.body;
     remote.publish('/' + req.params[0], JSON.stringify(req.body, "", "\t"))
 
