@@ -47,14 +47,13 @@ var express = require('express'),
 
 app.use(bodyParser.json());
 
-app.post('/default/*', function (req, res) {
+app.post('/*', function (req, res) {
     // Publish
-    hook(req, res);
-});
-
-app.post('/travis', function (req, res) {
-    // Publish
-    travis(req, res);
+    if (req.params[0].startsWith('travis')) {
+	travis(req, res);
+    } else {
+	hook(req, res);
+    }
 });
 
 var server = app.listen(port, function () {
