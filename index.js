@@ -35,6 +35,9 @@ remote.on('connect', function () {
     console.log('Remote running ...');
 });
 
+const got = require('got');
+const crypto = require('crypto');
+
 var express = require('express'),
     bodyParser = require('body-parser'),
     app = express(),
