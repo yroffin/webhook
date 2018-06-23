@@ -49,11 +49,7 @@ app.use(bodyParser.json());
 
 app.post('/*', function (req, res) {
     // Publish
-    if (req.params[0].startsWith('travis')) {
-	travis(req, res);
-    } else {
 	hook(req, res);
-    }
 });
 
 var server = app.listen(port, function () {
@@ -75,32 +71,4 @@ function hook(req, res) {
 
     // Return result
     res.json(req.body);
-}
-
-function travis(req, res) {
-    var body = req.body;
-    let travisSignature = Buffer.from(req.headers.signature, 'base64');
-    let payload = req.body.payload;
-    let status = false;
-
-    got('https://api.travis-ci.org/config', {
-        timeout: 10000
-    })
-        .then(response => {
-            let travisPublicKey =
-                JSON.parse(response.body).config.notifications.webhook.public_key;
-            let verifier = crypto.createVerify('sha1');
-            verifier.update(payload);
-            status = verifier.verify(travisPublicKey, travisSignature);
-        })
-        .catch(error => {
-            remote.publish('/' + req.params[0], JSON.stringify(req.body, "", "\t"))
-        })
-        .then(() => {
-            if (status) {
-                remote.publish('/' + req.params[0], JSON.stringify(req.body, "", "\t"))
-            }
-            // Return result
-            res.json(req.body);
-        });
 }
