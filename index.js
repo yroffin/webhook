@@ -69,6 +69,8 @@ function hook(req, res) {
     var body = req.body;
     remote.publish('/' + req.params[0], JSON.stringify(req.body, "", "\t"))
 
+    console.log("Topic: " + req.params[0]);
+
     // Return result
     res.json(req.body);
 }
